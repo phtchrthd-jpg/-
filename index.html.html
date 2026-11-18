@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeenPulse - เว็บแอปดูแลสุขภาพวัยรุ่นยุคใหม่</title>
+    <!-- Google Fonts: Prompt & Kanit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'Kanit', 'sans-serif'],
+                    },
+                    colors: {
+                        lavender: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                        },
+                        mint: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                        },
+                        skyneon: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                        },
+                        peach: {
+                            100: '#ffedd5',
+                            400: '#fb923c',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'fade-in': 'fadeIn 0.3s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f3ff 0%, #f0f9ff 50%, #ecfdf5 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+        .neon-shadow-purple {
+            box-shadow: 0 8px 25px -5px rgba(139, 92, 246, 0.25);
+        }
+        .neon-shadow-mint {
+            box-shadow: 0 8px 25px -5px rgba(16, 185, 129, 0.25);
+        }
+        .neon-shadow-sky {
+            box-shadow: 0 8px 25px -5px rgba(14, 165, 233, 0.25);
+        }
+        .nav-active {
+            background: linear-gradient(135deg, #8b5cf6, #38bdf8);
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.35);
+        }
+    </style>
+</head>
+<body class="text-slate-700 antialiased pb-24 md:pb-8">
+
+    <!-- Toast Notification Container (Replaces alert) -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Custom Modal Container -->
+    <div id="custom-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl transform transition-all animate-fade-in relative max-h-[85vh] overflow-y-auto">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition">
+                <i class="ph ph-x text-lg"></i>
+            </button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Top Header & Desktop Navigation -->
+    <header class="sticky top-0 z-40 glass-card border-b border-white/60 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-2.5 cursor-pointer" onclick="switchTab('dashboard')">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-lavender-500 via-skyneon-400 to-mint-400 flex items-center justify-center text-white shadow-md">
+                    <i class="ph-fill ph-heartbeat text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl bg-gradient-to-r from-lavender-600 to-skyneon-500 bg-clip-text text-transparent leading-none">TeenPulse</h1>
+                    <p class="text-[11px] text-slate-400 font-medium">พื้นที่ดูแลใจและกายของวัยรุ่น</p>
+                </div>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-2xl">
+                <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn nav-active px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-lavender-600 transition flex items-center gap-2">
+                    <i class="ph ph-house text-lg"></i> หน้าหลัก
+                </button>
+                <button onclick="switchTab('mental')" data-tab="mental" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-lavender-600 transition flex items-center gap-2">
+                    <i class="ph ph-smiley text-lg"></i> เช็กสุขภาพใจ
+                </button>
+                <button onclick="switchTab('physical')" data-tab="physical" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-lavender-600 transition flex items-center gap-2">
+                    <i class="ph ph-person-simple-run text-lg"></i> สุขภาพกาย
+                </button>
+                <button onclick="switchTab('nutrition')" data-tab="nutrition" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-lavender-600 transition flex items-center gap-2">
+                    <i class="ph ph-moon-stars text-lg"></i> กิน & นอน
+                </button>
+                <button onclick="switchTab('articles')" data-tab="articles" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-lavender-600 transition flex items-center gap-2">
+                    <i class="ph ph-books text-lg"></i> คลังความรู้
+                </button>
+            </nav>
+
+            <!-- Emergency Hotline Quick Button -->
+            <button onclick="openHotlineModal()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition shadow-sm">
+                <i class="ph-fill ph-phone-call text-base animate-pulse"></i>
+                <span>สายด่วน 1323</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-6xl mx-auto px-4 pt-6">
+
+        <!-- ==========================================
+             1. DASHBOARD / OVERVIEW TAB
+        =========================================== -->
+        <section id="tab-dashboard" class="tab-content animate-fade-in space-y-6">
+            <!-- Welcome Banner & Quote -->
+            <div class="rounded-3xl bg-gradient-to-r from-lavender-500 via-indigo-500 to-skyneon-500 p-6 sm:p-8 text-white neon-shadow-purple relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-44 h-44 bg-white/10 rounded-full blur-xl"></div>
+                <div class="absolute right-12 -bottom-12 w-32 h-32 bg-mint-300/20 rounded-full blur-lg"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div class="space-y-2 max-w-xl">
+                        <span id="current-date-badge" class="inline-block px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-medium">
+                            กำลังโหลดวันที่...
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-bold">สวัสดีวัยรุ่น! วันนี้ดูแลตัวเองหรือยัง? ✨</h2>
+                        <div class="bg-white/15 backdrop-blur-md rounded-2xl p-4 mt-3 border border-white/20">
+                            <div class="flex items-start gap-2.5">
+                                <i class="ph-fill ph-quotes text-2xl text-mint-300 shrink-0"></i>
+                                <div>
+                                    <p id="daily-quote" class="text-sm sm:text-base font-medium leading-relaxed">
+                                        "ไม่จำเป็นต้องเก่งที่สุดในทุกวัน แค่ใจดีกับตัวเองให้มากขึ้นในวันที่เหนื่อยล้าก็พอแล้ว"
+                                    </p>
+                                    <button onclick="newQuote()" class="mt-2 text-xs text-lavender-100 hover:text-white flex items-center gap-1 underline">
+                                        <i class="ph ph-arrows-clockwise"></i> สุ่มข้อความให้กำลังใจใหม่
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hidden sm:flex flex-col items-center justify-center bg-white/15 backdrop-blur-md p-5 rounded-3xl border border-white/20 shrink-0 animate-float">
+                        <span class="text-5xl mb-2" id="dash-hero-emoji">🌈</span>
+                        <span class="text-xs font-medium text-white/90">Teen Wellness Hub</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Summary Cards -->
+            <div>
+                <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <i class="ph-fill ph-chart-pie-slice text-lavender-500"></i> สรุปภาพรวมสุขภาพวันนี้
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Mood Summary -->
+                    <div onclick="switchTab('mental')" class="glass-card rounded-3xl p-5 hover:scale-[1.02] transition cursor-pointer neon-shadow-purple">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-xl bg-lavender-100 text-lavender-600">อารมณ์วันนี้</span>
+                            <i class="ph ph-arrow-up-right text-slate-400"></i>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div id="dash-mood-emoji" class="w-12 h-12 rounded-2xl bg-lavender-50 flex items-center justify-center text-3xl">🤔</div>
+                            <div>
+                                <p id="dash-mood-label" class="font-bold text-slate-800">ยังไม่ได้บันทึก</p>
+                                <p id="dash-mood-note" class="text-xs text-slate-500 line-clamp-1">แตะเพื่อเช็กอารมณ์เลย</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Water Summary -->
+                    <div onclick="switchTab('physical')" class="glass-card rounded-3xl p-5 hover:scale-[1.02] transition cursor-pointer neon-shadow-sky">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-xl bg-skyneon-100 text-skyneon-500">การดื่มน้ำ</span>
+                            <i class="ph ph-arrow-up-right text-slate-400"></i>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-skyneon-50 flex items-center justify-center text-skyneon-500 text-2xl">
+                                <i class="ph-fill ph-drop"></i>
+                            </div>
+                            <div class="w-full">
+                                <p class="font-bold text-slate-800"><span id="dash-water-count">0</span> / 8 แก้ว</p>
+                                <div class="w-full bg-slate-100 h-2 rounded-full mt-1.5 overflow-hidden">
+                                    <div id="dash-water-bar" class="bg-gradient-to-r from-skyneon-400 to-mint-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BMI Summary -->
+                    <div onclick="switchTab('physical')" class="glass-card rounded-3xl p-5 hover:scale-[1.02] transition cursor-pointer neon-shadow-mint">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-xl bg-mint-100 text-mint-500">ดัชนีมวลกาย (BMI)</span>
+                            <i class="ph ph-arrow-up-right text-slate-400"></i>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-mint-50 flex items-center justify-center text-mint-500 text-2xl">
+                                <i class="ph-fill ph-scales"></i>
+                            </div>
+                            <div>
+                                <p id="dash-bmi-val" class="font-bold text-slate-800">ยังไม่มีข้อมูล</p>
+                                <p id="dash-bmi-status" class="text-xs text-slate-500">คำนวณสมดุลร่างกาย</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stress Check Summary -->
+                    <div onclick="switchTab('mental')" class="glass-card rounded-3xl p-5 hover:scale-[1.02] transition cursor-pointer">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-xl bg-amber-100 text-amber-600">ระดับความเครียด</span>
+                            <i class="ph ph-arrow-up-right text-slate-400"></i>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 text-2xl">
+                                <i class="ph-fill ph-brain"></i>
+                            </div>
+                            <div>
+                                <p id="dash-stress-status" class="font-bold text-slate-800">รอประเมิน</p>
+                                <p class="text-xs text-slate-500">แบบทดสอบสั้น 5 ข้อ</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions & Daily Tips -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Quick Daily Tips -->
+                <div class="lg:col-span-2 glass-card rounded-3xl p-6 space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="ph-fill ph-sparkle text-amber-400"></i> 3 ภารกิจฮีลกายฮีลใจสำหรับวัยเรียน
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="p-4 rounded-2xl bg-lavender-50/80 border border-lavender-100 space-y-2">
+                            <div class="w-9 h-9 rounded-xl bg-lavender-500 text-white flex items-center justify-center">
+                                <i class="ph ph-device-mobile-slash text-lg"></i>
+                            </div>
+                            <h4 class="font-semibold text-sm text-slate-800">พักสายตา 20-20-20</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">เรียนออนไลน์หรือไถฟีดทุก 20 นาที ให้มองไกล 20 ฟุต นาน 20 วินาที</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-mint-50/80 border border-mint-100 space-y-2">
+                            <div class="w-9 h-9 rounded-xl bg-mint-500 text-white flex items-center justify-center">
+                                <i class="ph ph-drop-half-bottom text-lg"></i>
+                            </div>
+                            <h4 class="font-semibold text-sm text-slate-800">ลดหวานวันละนิด</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">เปลี่ยนจากชานมไข่มุกหวาน 100% เป็นหวาน 25% หรือน้ำเปล่า ช่วยลดสิวและง่วงซึม</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-skyneon-50/80 border border-skyneon-100 space-y-2">
+                            <div class="w-9 h-9 rounded-xl bg-skyneon-500 text-white flex items-center justify-center">
+                                <i class="ph ph-moon text-lg"></i>
+                            </div>
+                            <h4 class="font-semibold text-sm text-slate-800">วางจอก่อนนอน 30 นาที</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">แสงสีฟ้าทำให้สมองตื่นตัว ลองฟังเพลงเบาๆ หรือยืดเส้นก่อนหลับจะช่วยให้หลับลึกขึ้น</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Featured Article Preview -->
+                <div class="glass-card rounded-3xl p-6 flex flex-col justify-between bg-gradient-to-br from-white to-lavender-50">
+                    <div class="space-y-2">
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full bg-lavender-100 text-lavender-600">บทความแนะนำ</span>
+                        <h4 class="font-bold text-lg text-slate-800 pt-1">รับมืออย่างไรเมื่อเจอ Cyberbullying บนโลกโซเชียล?</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">เรียนรู้วิธีปกป้องสุขภาพจิต เก็บหลักฐาน และขอความช่วยเหลืออย่างปลอดภัยเมื่อถูกกลั่นแกล้งออนไลน์</p>
+                    </div>
+                    <button onclick="switchTab('articles'); openArticle(3);" class="mt-4 w-full py-2.5 px-4 rounded-2xl bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium transition flex items-center justify-center gap-2">
+                        <span>อ่านบทความนี้</span>
+                        <i class="ph ph-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             2. MENTAL HEALTH & MOOD TRACKER TAB
+        =========================================== -->
+        <section id="tab-mental" class="tab-content hidden animate-fade-in space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">เช็กสุขภาพใจ (Mental Wellness) 💜</h2>
+                    <p class="text-sm text-slate-500">พื้นที่ปลอดภัยสำหรับสำรวจความรู้สึกของตัวเองในแต่ละวัน</p>
+                </div>
+                <button onclick="openHotlineModal()" class="self-start sm:self-auto bg-rose-500 hover:bg-rose-600 text-white px-4 py-2.5 rounded-2xl text-sm font-medium shadow-md shadow-rose-200 flex items-center gap-2 transition">
+                    <i class="ph-fill ph-lifebuoy text-lg"></i> ต้องการคนรับฟัง / สายด่วนฉุกเฉิน
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Column: Mood Tracker -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="glass-card rounded-3xl p-6 space-y-5 neon-shadow-purple">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="ph-fill ph-smiley-wink text-lavender-500 text-xl"></i> วันนี้เธอรู้สึกยังไงบ้าง?
+                        </h3>
+                        
+                        <!-- Emoji Selector -->
+                        <div class="grid grid-cols-5 gap-2 sm:gap-3" id="mood-selector">
+                            <button type="button" onclick="selectMood('happy', '😄', 'มีความสุข')" class="mood-option flex flex-col items-center p-3 rounded-2xl border-2 border-transparent bg-amber-50/70 hover:bg-amber-100/80 transition">
+                                <span class="text-3xl sm:text-4xl mb-1">😄</span>
+                                <span class="text-xs font-semibold text-slate-700">มีความสุข</span>
+                            </button>
+                            <button type="button" onclick="selectMood('neutral', '😐', 'เฉยๆ')" class="mood-option flex flex-col items-center p-3 rounded-2xl border-2 border-transparent bg-skyneon-50/70 hover:bg-skyneon-100/80 transition">
+                                <span class="text-3xl sm:text-4xl mb-1">😐</span>
+                                <span class="text-xs font-semibold text-slate-700">เฉยๆ</span>
+                            </button>
+                            <button type="button" onclick="selectMood('stressed', '😫', 'เครียด')" class="mood-option flex flex-col items-center p-3 rounded-2xl border-2 border-transparent bg-rose-50/70 hover:bg-rose-100/80 transition">
+                                <span class="text-3xl sm:text-4xl mb-1">😫</span>
+                                <span class="text-xs font-semibold text-slate-700">เครียด</span>
+                            </button>
+                            <button type="button" onclick="selectMood('sad', '😢', 'เศร้า')" class="mood-option flex flex-col items-center p-3 rounded-2xl border-2 border-transparent bg-indigo-50/70 hover:bg-indigo-100/80 transition">
+                                <span class="text-3xl sm:text-4xl mb-1">😢</span>
+                                <span class="text-xs font-semibold text-slate-700">เศร้า</span>
+                            </button>
+                            <button type="button" onclick="selectMood('tired', '😴', 'เหนื่อยล้า')" class="mood-option flex flex-col items-center p-3 rounded-2xl border-2 border-transparent bg-emerald-50/70 hover:bg-emerald-100/80 transition">
+                                <span class="text-3xl sm:text-4xl mb-1">😴</span>
+                                <span class="text-xs font-semibold text-slate-700">เหนื่อยล้า</span>
+                            </button>
+                        </div>
+
+                        <!-- Mood Advice Box (Dynamic) -->
+                        <div id="mood-advice-box" class="hidden rounded-2xl p-4 bg-gradient-to-r from-lavender-50 to-skyneon-50 border border-lavender-200 animate-fade-in">
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-full bg-lavender-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                                    <i class="ph-fill ph-heart"></i>
+                                </div>
+                                <div>
+                                    <h4 id="mood-advice-title" class="font-bold text-sm text-lavender-600">คำแนะนำดูแลใจ</h4>
+                                    <p id="mood-advice-text" class="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Short Diary Note -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-600">บันทึกสั้นๆ ถึงตัวเองวันนี้ (ไม่บังคับ)</label>
+                            <textarea id="mood-note-input" rows="2" placeholder="เช่น วันนี้สอบผ่านแล้วดีใจจัง / วันนี้การบ้านเยอะมากเลย..." class="w-full rounded-2xl border border-slate-200 bg-white/80 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-lavender-400 transition"></textarea>
+                        </div>
+
+                        <button onclick="saveMoodEntry()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-lavender-500 to-skyneon-500 hover:opacity-95 text-white font-semibold text-sm shadow-md transition flex items-center justify-center gap-2">
+                            <i class="ph-bold ph-check-circle text-lg"></i> บันทึกอารมณ์วันนี้
+                        </button>
+                    </div>
+
+                    <!-- Mood History List -->
+                    <div class="glass-card rounded-3xl p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                                <i class="ph ph-clock-counter-clockwise text-lavender-500"></i> ประวัติบันทึกอารมณ์ล่าสุด
+                            </h3>
+                            <button onclick="clearMoodHistory()" class="text-xs text-slate-400 hover:text-rose-500 transition">ล้างประวัติ</button>
+                        </div>
+                        <div id="mood-history-list" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: 5-Question Stress Check -->
+                <div class="lg:col-span-5">
+                    <div class="glass-card rounded-3xl p-6 space-y-5 border-t-4 border-t-mint-400">
+                        <div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-mint-100 text-mint-600">แบบประเมินสั้น 1 นาที</span>
+                            <h3 class="text-lg font-bold text-slate-800 mt-2">เช็กความเครียดเบื้องต้น (5 ข้อ)</h3>
+                            <p class="text-xs text-slate-500">ในช่วง 1 สัปดาห์ที่ผ่านมา เธอมีอาการเหล่านี้บ่อยแค่ไหน?</p>
+                        </div>
+
+                        <form id="stress-form" class="space-y-4">
+                            <!-- Question 1 -->
+                            <div class="p-3.5 rounded-2xl bg-white/70 border border-slate-100 space-y-2">
+                                <p class="text-xs sm:text-sm font-medium text-slate-800">1. นอนไม่หลับ หลับยาก หรือหลับๆ ตื่นๆ เพราะคิดมาก</p>
+                                <div class="grid grid-cols-4 gap-1.5 text-center text-xs">
+                                    <label class="cursor-pointer"><input type="radio" name="q1" value="0" class="peer hidden" required><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">ไม่เลย</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q1" value="1" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">บางครั้ง</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q1" value="2" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">บ่อยครั้ง</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q1" value="3" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">ประจำ</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Question 2 -->
+                            <div class="p-3.5 rounded-2xl bg-white/70 border border-slate-100 space-y-2">
+                                <p class="text-xs sm:text-sm font-medium text-slate-800">2. รู้สึกสมาธิสั้น จดจ่อกับการเรียนหรือสิ่งที่ทำได้ยาก</p>
+                                <div class="grid grid-cols-4 gap-1.5 text-center text-xs">
+                                    <label class="cursor-pointer"><input type="radio" name="q2" value="0" class="peer hidden" required><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">ไม่เลย</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q2" value="1" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">บางครั้ง</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q2" value="2" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">บ่อยครั้ง</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q2" value="3" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">ประจำ</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Question 3 -->
+                            <div class="p-3.5 rounded-2xl bg-white/70 border border-slate-100 space-y-2">
+                                <p class="text-xs sm:text-sm font-medium text-slate-800">3. หงุดหงิดง่าย กระวนกระวาย หรืออารมณ์แปรปรวน</p>
+                                <div class="grid grid-cols-4 gap-1.5 text-center text-xs">
+                                    <label class="cursor-pointer"><input type="radio" name="q3" value="0" class="peer hidden" required><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">ไม่เลย</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q3" value="1" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">บางครั้ง</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q3" value="2" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">บ่อยครั้ง</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q3" value="3" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">ประจำ</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Question 4 -->
+                            <div class="p-3.5 rounded-2xl bg-white/70 border border-slate-100 space-y-2">
+                                <p class="text-xs sm:text-sm font-medium text-slate-800">4. รู้สึกเบื่อหน่าย ไม่อยากทำกิจกรรมที่เคยชอบ</p>
+                                <div class="grid grid-cols-4 gap-1.5 text-center text-xs">
+                                    <label class="cursor-pointer"><input type="radio" name="q4" value="0" class="peer hidden" required><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">ไม่เลย</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q4" value="1" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">บางครั้ง</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q4" value="2" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">บ่อยครั้ง</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q4" value="3" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">ประจำ</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Question 5 -->
+                            <div class="p-3.5 rounded-2xl bg-white/70 border border-slate-100 space-y-2">
+                                <p class="text-xs sm:text-sm font-medium text-slate-800">5. รู้สึกกดดัน กังวลเรื่องเรียน เพื่อน หรืออนาคต</p>
+                                <div class="grid grid-cols-4 gap-1.5 text-center text-xs">
+                                    <label class="cursor-pointer"><input type="radio" name="q5" value="0" class="peer hidden" required><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">ไม่เลย</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q5" value="1" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">บางครั้ง</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q5" value="2" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">บ่อยครั้ง</span></label>
+                                    <label class="cursor-pointer"><input type="radio" name="q5" value="3" class="peer hidden"><span class="block py-1.5 rounded-xl bg-slate-100 peer-checked:bg-lavender-500 peer-checked:text-white transition">ประจำ</span></label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full py-3 rounded-2xl bg-mint-500 hover:bg-mint-600 text-white font-semibold text-sm shadow-md transition">
+                                แปลผลความเครียด
+                            </button>
+                        </form>
+
+                        <!-- Stress Result Box -->
+                        <div id="stress-result-box" class="hidden rounded-2xl p-4 border animate-fade-in space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span id="stress-level-badge" class="text-xs font-bold px-3 py-1 rounded-full"></span>
+                                <span id="stress-score-text" class="text-xs font-semibold text-slate-500"></span>
+                            </div>
+                            <p id="stress-advice-desc" class="text-xs sm:text-sm text-slate-700 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             3. PHYSICAL HEALTH & FITNESS TAB
+        =========================================== -->
+        <section id="tab-physical" class="tab-content hidden animate-fade-in space-y-6">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800">ดูแลสุขภาพกาย (Physical Health) 💪</h2>
+                <p class="text-sm text-slate-500">สร้างร่างกายให้แข็งแรงสมวัย เน้นความสดชื่น ไม่คลั่งผอม</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Water Intake Tracker -->
+                <div class="glass-card rounded-3xl p-6 space-y-5 neon-shadow-sky">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="ph-fill ph-drop text-skyneon-500 text-xl"></i> บันทึกการดื่มน้ำวันนี้
+                            </h3>
+                            <p class="text-xs text-slate-500">เป้าหมายแนะนำ: 8 แก้วต่อวัน (ประมาณ 2 ลิตร)</p>
+                        </div>
+                        <button onclick="resetWater()" class="text-xs text-slate-400 hover:text-rose-500 underline">รีเซ็ตวันนี้</button>
+                    </div>
+
+                    <!-- Visual Glasses Grid -->
+                    <div class="bg-skyneon-50/70 rounded-2xl p-5 text-center space-y-4 border border-skyneon-100">
+                        <div class="flex items-baseline justify-center gap-2">
+                            <span id="water-big-count" class="text-5xl font-extrabold text-skyneon-500">0</span>
+                            <span class="text-slate-500 font-medium">/ 8 แก้ว (<span id="water-ml-count">0</span> ml)</span>
+                        </div>
+                        
+                        <div id="water-glasses-grid" class="flex flex-wrap justify-center gap-2.5">
+                            <!-- 8 interactive glasses rendered via JS -->
+                        </div>
+
+                        <div class="flex items-center justify-center gap-3 pt-2">
+                            <button onclick="updateWater(-1)" class="w-11 h-11 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 flex items-center justify-center text-xl font-bold shadow-sm transition">
+                                -
+                            </button>
+                            <button onclick="updateWater(1)" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-skyneon-500 to-mint-400 hover:opacity-95 text-white font-semibold text-sm shadow-md flex items-center gap-2 transition">
+                                <i class="ph-bold ph-plus"></i> ดื่มน้ำเพิ่ม 1 แก้ว
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teen BMI Calculator -->
+                <div class="glass-card rounded-3xl p-6 space-y-5 neon-shadow-mint">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="ph-fill ph-calculator text-mint-500 text-xl"></i> คำนวณค่าดัชนีมวลกาย (BMI) วัยรุ่น
+                        </h3>
+                        <p class="text-xs text-slate-500">ประเมินความสมดุลของน้ำหนักและส่วนสูงในวัยเจริญเติบโต</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">น้ำหนัก (กิโลกรัม)</label>
+                            <input type="number" id="bmi-weight" placeholder="เช่น 52" min="20" max="200" class="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-mint-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">ส่วนสูง (เซนติเมตร)</label>
+                            <input type="number" id="bmi-height" placeholder="เช่น 165" min="100" max="230" class="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-mint-400">
+                        </div>
+                    </div>
+
+                    <button onclick="calculateBMI()" class="w-full py-3 rounded-2xl bg-mint-500 hover:bg-mint-600 text-white font-semibold text-sm shadow-md transition">
+                        คำนวณ BMI และรับคำแนะนำ
+                    </button>
+
+                    <!-- BMI Output -->
+                    <div id="bmi-result-box" class="hidden rounded-2xl p-4 bg-mint-50/90 border border-mint-200 animate-fade-in space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-bold text-slate-800">ค่า BMI ของเธอคือ <span id="bmi-score" class="text-xl text-mint-600"></span></span>
+                            <span id="bmi-category" class="text-xs font-bold px-3 py-1 rounded-full bg-white text-mint-600 shadow-sm"></span>
+                        </div>
+                        <p id="bmi-advice" class="text-xs sm:text-sm text-slate-600 leading-relaxed"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Home / Dorm Workout Ideas -->
+            <div class="glass-card rounded-3xl p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="ph-fill ph-sneaker-move text-lavender-500 text-xl"></i> ไอเดียออกกำลังกายง่ายๆ ทำได้ที่บ้านหรือหอพัก
+                        </h3>
+                        <p class="text-xs text-slate-500">ไม่ใช้อุปกรณ์ ใช้พื้นที่น้อย ช่วยแก้ปวดเมื่อยจากการนั่งเรียนและเล่นมือถือ</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Workout Card 1 -->
+                    <div class="rounded-2xl bg-white/80 border border-lavender-100 p-5 space-y-3 hover:shadow-md transition">
+                        <div class="flex items-center justify-between">
+                            <span class="px-3 py-1 rounded-xl bg-lavender-100 text-lavender-600 text-xs font-bold">10 นาที • คาร์ดิโอ</span>
+                            <span class="text-2xl">🔥</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800">Cardio ปลุกพลังยามเช้า</h4>
+                        <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside">
+                            <li>Jumping Jacks (กระโดดตบ) 45 วิ / พัก 15 วิ</li>
+                            <li>High Knees (วิ่งยกเข่าสูง) 45 วิ / พัก 15 วิ</li>
+                            <li>Mountain Climbers 45 วิ / พัก 15 วิ</li>
+                            <li>ทำวนซ้ำ 3 รอบ ช่วยให้หัวใจแข็งแรงและสมองตื่นตัว</li>
+                        </ul>
+                    </div>
+
+                    <!-- Workout Card 2 -->
+                    <div class="rounded-2xl bg-white/80 border border-skyneon-100 p-5 space-y-3 hover:shadow-md transition">
+                        <div class="flex items-center justify-between">
+                            <span class="px-3 py-1 rounded-xl bg-skyneon-100 text-skyneon-600 text-xs font-bold">5 นาที • แก้ออฟฟิศซินโดรม</span>
+                            <span class="text-2xl">🧘‍♀️</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800">ยืดเหยียดแก้ปวดคอ บ่า หลัง</h4>
+                        <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside">
+                            <li>เอียงคอซ้าย-ขวา ค้างไว้ข้างละ 15 วินาที</li>
+                            <li>ประสานมือดันขึ้นเหนือศีรษะ ยืดหลังให้สุด 20 วินาที</li>
+                            <li>ท่า Cat-Cow บนเตียงหรือเสื่อ 10 ครั้ง</li>
+                            <li>ช่วยคลายกล้ามเนื้อจากการก้มดูจอมือถือและโน้ตบุ๊ก</li>
+                        </ul>
+                    </div>
+
+                    <!-- Workout Card 3 -->
+                    <div class="rounded-2xl bg-white/80 border border-mint-100 p-5 space-y-3 hover:shadow-md transition">
+                        <div class="flex items-center justify-between">
+                            <span class="px-3 py-1 rounded-xl bg-mint-100 text-mint-600 text-xs font-bold">7 นาที • กระชับสัดส่วน</span>
+                            <span class="text-2xl">⚡</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800">บอดี้เวทเบาๆ ฉบับเด็กหอ</h4>
+                        <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside">
+                            <li>Squats (สควอท) 15 ครั้ง x 2 เซต</li>
+                            <li>Wall Push-ups (วิดพื้นกับกำแพง) 12 ครั้ง x 2 เซต</li>
+                            <li>Plank (แพลงก์) ค้างไว้ 30 วินาที x 2 เซต</li>
+                            <li>ไม่ส่งเสียงดังรบกวนห้องข้างล่าง ทำได้ทุกวัน!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             4. NUTRITION & SLEEP TAB
+        =========================================== -->
+        <section id="tab-nutrition" class="tab-content hidden animate-fade-in space-y-6">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800">โภชนาการและการนอน (Nutrition & Sleep) 🌙</h2>
+                <p class="text-sm text-slate-500">กินดีสมองแล่น นอนครบวงจรตื่นมาสดใสไม่เบลอ</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Sleep Cycle Calculator -->
+                <div class="lg:col-span-5 glass-card rounded-3xl p-6 space-y-5 bg-gradient-to-b from-indigo-900 to-slate-900 text-white shadow-xl">
+                    <div class="space-y-1">
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full bg-indigo-500/40 text-indigo-200 border border-indigo-400/30">Sleep Cycle Calculator</span>
+                        <h3 class="text-xl font-bold pt-2 flex items-center gap-2">
+                            <i class="ph-fill ph-moon-stars text-amber-300"></i> คำนวณเวลานอนให้ตื่นสดชื่น
+                        </h3>
+                        <p class="text-xs text-indigo-200 leading-relaxed">
+                            การนอนหลับ 1 รอบ (Sleep Cycle) ใช้เวลาประมาณ 90 นาที หากตื่นในช่วงรอยต่อของรอบจะช่วยให้ไม่งัวเงีย!
+                        </p>
+                    </div>
+
+                    <div class="space-y-3 bg-white/10 p-4 rounded-2xl border border-white/10">
+                        <label class="block text-xs font-medium text-indigo-100">เลือกเวลาที่ต้องตื่นไปเรียน / ทำธุระ:</label>
+                        <input type="time" id="wake-time-input" value="06:30" class="w-full rounded-2xl bg-slate-800 border border-indigo-400/40 px-4 py-3 text-lg font-bold text-white focus:outline-none focus:ring-2 focus:ring-skyneon-400">
+                        <button onclick="calculateSleepTimes()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-lavender-500 to-skyneon-400 hover:opacity-95 text-white font-semibold text-sm shadow-lg transition">
+                            คำนวณเวลาเข้านอนที่แนะนำ
+                        </button>
+                    </div>
+
+                    <div id="sleep-results-box" class="space-y-2.5">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Teen Nutrition Tips -->
+                <div class="lg:col-span-7 glass-card rounded-3xl p-6 space-y-5">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="ph-fill ph-bowl-food text-mint-500 text-xl"></i> เคล็ดลับการกินฉบับวัยเรียน
+                    </h3>
+
+                    <!-- 6:6:1 Rule -->
+                    <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-2">
+                        <h4 class="font-bold text-sm text-amber-800 flex items-center gap-1.5">
+                            <i class="ph-fill ph-warning-circle text-amber-500"></i> รู้จักสูตร "ลดหวาน มัน เค็ม" (6 : 6 : 1)
+                        </h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            ใน 1 วัน วัยรุ่นไม่ควรกิน <strong>น้ำตาลเกิน 6 ช้อนชา</strong> (ชานมไข่มุก 1 แก้วอาจมีน้ำตาลถึง 8-12 ช้อนชา!), <strong>น้ำมันไม่เกิน 6 ช้อนชา</strong> และ <strong>เกลือไม่เกิน 1 ช้อนชา</strong> (ระวังโซเดียมในบะหมี่กึ่งสำเร็จรูปและขนมกรุบกรอบ)
+                        </p>
+                    </div>
+
+                    <!-- Brain Food Grid -->
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-sm text-slate-700">อาหารบำรุงสมอง เพิ่มความจำช่วงสอบ 🧠</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="p-3.5 rounded-2xl bg-white/80 border border-slate-100 flex items-start gap-3">
+                                <span class="text-2xl">🐟</span>
+                                <div>
+                                    <h5 class="font-bold text-xs text-slate-800">ปลาทะเล & ไข่ไก่</h5>
+                                    <p class="text-xs text-slate-500 mt-0.5">อุดมด้วยโอเมก้า-3 และโคลีน ช่วยเสริมสร้างสารสื่อประสาทและความจำ</p>
+                                </div>
+                            </div>
+                            <div class="p-3.5 rounded-2xl bg-white/80 border border-slate-100 flex items-start gap-3">
+                                <span class="text-2xl">🍌</span>
+                                <div>
+                                    <h5 class="font-bold text-xs text-slate-800">กล้วยหอม & เบอร์รี่</h5>
+                                    <p class="text-xs text-slate-500 mt-0.5">ให้พลังงานสมองอย่างรวดเร็ว อารมณ์ดี ลดความเครียดก่อนเข้าห้องสอบ</p>
+                                </div>
+                            </div>
+                            <div class="p-3.5 rounded-2xl bg-white/80 border border-slate-100 flex items-start gap-3">
+                                <span class="text-2xl">🥜</span>
+                                <div>
+                                    <h5 class="font-bold text-xs text-slate-800">ถั่วเปลือกแข็ง & เมล็ดธัญพืช</h5>
+                                    <p class="text-xs text-slate-500 mt-0.5">มีวิตามินอีและแมกนีเซียม ช่วยให้มีสมาธิ ไม่หิวจุกจิกตอนอ่านหนังสือ</p>
+                                </div>
+                            </div>
+                            <div class="p-3.5 rounded-2xl bg-white/80 border border-slate-100 flex items-start gap-3">
+                                <span class="text-2xl">🥦</span>
+                                <div>
+                                    <h5 class="font-bold text-xs text-slate-800">ผักใบเขียว & ข้าวไม่ขัดสี</h5>
+                                    <p class="text-xs text-slate-500 mt-0.5">มีวิตามินบีรวม ช่วยเปลี่ยนอาหารเป็นพลังงานให้สมองทำงานได้เต็มที่</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             5. TEEN HEALTH ARTICLES / FAQ TAB
+        =========================================== -->
+        <section id="tab-articles" class="tab-content hidden animate-fade-in space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">คลังความรู้วัยรุ่น (Teen Hub & FAQ) 📚</h2>
+                    <p class="text-sm text-slate-500">สาระน่ารู้ที่วัยรุ่นอยากรู้ อ่านเข้าใจง่าย ปลอดภัย และเชื่อถือได้</p>
+                </div>
+                
+                <!-- Category Filter -->
+                <div class="flex flex-wrap gap-1.5" id="article-filters">
+                    <button onclick="filterArticles('all')" class="filter-btn active px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-lavender-500 text-white transition">ทั้งหมด</button>
+                    <button onclick="filterArticles('skin')" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-600 hover:bg-lavender-50 transition">ผิวพรรณ & สิว</button>
+                    <button onclick="filterArticles('life')" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-600 hover:bg-lavender-50 transition">เรียน & เวลา</button>
+                    <button onclick="filterArticles('sexed')" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-600 hover:bg-lavender-50 transition">เพศศึกษาปลอดภัย</button>
+                    <button onclick="filterArticles('cyber')" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-600 hover:bg-lavender-50 transition">โลกออนไลน์</button>
+                </div>
+            </div>
+
+            <!-- Articles Grid -->
+            <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- FAQ Accordion -->
+            <div class="glass-card rounded-3xl p-6 space-y-4">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="ph-fill ph-chat-circle-dots text-skyneon-500 text-xl"></i> คำถามที่พบบ่อยของวัยรุ่น (FAQ)
+                </h3>
+                <div class="space-y-2.5" id="faq-container">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 glass-card border-t border-white/80 px-2 py-2 flex justify-around items-center shadow-lg">
+        <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn nav-active flex flex-col items-center justify-center w-16 py-1.5 rounded-2xl text-slate-500 transition">
+            <i class="ph ph-house text-xl"></i>
+            <span class="text-[10px] font-medium mt-0.5">หน้าหลัก</span>
+        </button>
+        <button onclick="switchTab('mental')" data-tab="mental" class="nav-btn flex flex-col items-center justify-center w-16 py-1.5 rounded-2xl text-slate-500 transition">
+            <i class="ph ph-smiley text-xl"></i>
+            <span class="text-[10px] font-medium mt-0.5">สุขภาพใจ</span>
+        </button>
+        <button onclick="switchTab('physical')" data-tab="physical" class="nav-btn flex flex-col items-center justify-center w-16 py-1.5 rounded-2xl text-slate-500 transition">
+            <i class="ph ph-person-simple-run text-xl"></i>
+            <span class="text-[10px] font-medium mt-0.5">สุขภาพกาย</span>
+        </button>
+        <button onclick="switchTab('nutrition')" data-tab="nutrition" class="nav-btn flex flex-col items-center justify-center w-16 py-1.5 rounded-2xl text-slate-500 transition">
+            <i class="ph ph-moon-stars text-xl"></i>
+            <span class="text-[10px] font-medium mt-0.5">กิน&นอน</span>
+        </button>
+        <button onclick="switchTab('articles')" data-tab="articles" class="nav-btn flex flex-col items-center justify-center w-16 py-1.5 rounded-2xl text-slate-500 transition">
+            <i class="ph ph-books text-xl"></i>
+            <span class="text-[10px] font-medium mt-0.5">ความรู้</span>
+        </button>
+    </nav>
+
+    <!-- ==========================================
+         JAVASCRIPT APPLICATION LOGIC
+    =========================================== -->
+    <script>
+        // --- 1. DATA & STATE MANAGEMENT ---
+        const STORAGE_KEYS = {
+            MOODS: 'teenpulse_moods_v1',
+            WATER: 'teenpulse_water_v1',
+            BMI: 'teenpulse_bmi_v1',
+            STRESS: 'teenpulse_stress_v1'
+        };
+
+        const QUOTES = [
+            "ไม่จำเป็นต้องเก่งที่สุดในทุกวัน แค่ใจดีกับตัวเองให้มากขึ้นในวันที่เหนื่อยล้าก็พอแล้ว",
+            "การเติบโตอาจทำให้สับสนบ้าง แต่ทุกก้าวเล็กๆ ที่เธอพยายามมีความหมายเสมอ",
+            "เปรียบเทียบตัวเองกับเมื่อวานก็พอ ไม่ต้องเอาไม้บรรทัดของคนอื่นมาวัดความสุขของเรา",
+            "พักบ้างก็ได้ โลกไม่ได้แตกสลายเพียงเพราะเธอขอเวลาชาร์จแบตให้ตัวเองสักชั่วโมง",
+            "ร่างกายนี้มีเพียงหนึ่งเดียว ดูแลเขาด้วยความรัก ไม่ใช่ด้วยการลงโทษนะวัยรุ่น!"
+        ];
+
+        const MOOD_ADVICE = {
+            happy: {
+                title: "ยอดเยี่ยมเลย! เก็บพลังงานบวกนี้ไว้นะ ✨",
+                text: "ดีใจด้วยที่วันนี้เป็นวันที่สดใส! ลองแชร์รอยยิ้มหรือส่งข้อความดีๆ ให้เพื่อนสนิท หรือจดบันทึกเรื่องราวดีๆ วันนี้ไว้กลับมาอ่านในวันที่เหนื่อยล้าสิ"
+            },
+            neutral: {
+                title: "วันที่เรียบง่ายก็เป็นวันที่ดีนะ 🌤️",
+                text: "ความรู้สึกเฉยๆ ไม่ใช่เรื่องผิดปกติ ลองหาอะไรเล็กๆ น้อยๆ ทำเพื่อเติมสีสัน เช่น ฟังเพลงโปรด เดินเล่นรับลม หรือดื่มเครื่องดื่มเย็นๆ สักแก้ว"
+            },
+            stressed: {
+                title: "หายใจเข้าลึกๆ ค่อยๆ ผ่อนคลายนะ 🌿",
+                text: "ลองใช้เทคนิคหายใจ 4-7-8 (สูดลมหายใจ 4 วิ, กลั้น 7 วิ, ผ่อนออก 8 วิ) ทำซ้ำ 3 รอบ แล้วจัดลำดับงานที่ต้องทำทีละอย่าง อย่าเพิ่งแบกทุกอย่างไว้พร้อมกัน"
+            },
+            sad: {
+                title: "กอดๆ นะ เธอไม่จำเป็นต้องเข้มแข็งตลอดเวลา 💙",
+                text: "อนุญาตให้ตัวเองเสียใจหรือร้องไห้ได้เต็มที่ ลองระบายความรู้สึกให้เพื่อนที่ไว้ใจ ครอบครัว หรือคนรักฟัง หากรู้สึกหนักเกินไป สามารถโทรปรึกษาสายด่วน 1323 ได้ตลอด 24 ชม."
+            },
+            tired: {
+                title: "ถึงเวลาพักผ่อนและชาร์จพลังแล้ว 🔋",
+                text: "ร่างกายและสมองกำลังส่งสัญญาณว่าใช้งานหนักเกินไปแล้ว คืนนี้ลองวางมือถือให้เร็วขึ้น ดื่มน้ำอุ่น และนอนหลับให้เต็มอิ่ม พรุ่งนี้ค่อยลุยกันใหม่นะ"
+            }
+        };
+
+        const ARTICLES_DATA = [
+            {
+                id: 0,
+                category: 'skin',
+                tag: 'ผิวพรรณ & สิว',
+                tagColor: 'bg-pink-100 text-pink-600',
+                emoji: '✨',
+                title: 'สิววัยรุ่นจัดการได้! ไม่ต้องพึ่งครีมตามกระแส',
+                summary: 'เข้าใจสาเหตุของสิวฮอร์โมน วิธีล้างหน้าที่ถูกต้อง และหลักการเลือกสกินแคร์พื้นฐานที่ปลอดภัยต่อผิววัยใส',
+                content: `
+                    <p class="mb-3">สิวในวัยรุ่นเป็นเรื่องธรรมชาติมากๆ เพราะฮอร์โมนในร่างกายกำลังเปลี่ยนแปลง ทำให้ต่อมไขมันผลิตน้ำมันมากขึ้น การดูแลที่ถูกต้องเริ่มจากความเรียบง่าย:</p>
+                    <ul class="list-disc list-inside space-y-2 mb-3">
+                        <li><strong>ล้างหน้าวันละ 2 ครั้งก็พอ:</strong> เช้าและเย็น ด้วยโฟมล้างหน้าสูตรอ่อนโยน (pH Balance) การล้างหน้าบ่อยเกินไปจะทำให้ผิวแห้งและผลิตน้ำมันเพิ่ม</li>
+                        <li><strong>ห้ามบีบหรือแกะสิวเด็ดขาด:</strong> เพราะจะทำให้เชื้อแบคทีเรียกระจาย เกิดการอักเสบ และทิ้งรอยดำหรือหลุมสิวที่รักษายาก</li>
+                        <li><strong>ทากันแดดทุกเช้า:</strong> แสงแดดทำให้รอยสิวเข้มขึ้น เลือกกันแดดเนื้อเจลหรือฟลูอิดที่ไม่อุดตันรูขุมขน (Non-comedogenic)</li>
+                        <li><strong>ระวังครีมหน้าขาวในเน็ต:</strong> หลีกเลี่ยงครีมที่ไม่มี อย. หรืออวดอ้างว่าขาวใสใน 3 วัน เพราะมักผสมสารสเตียรอยด์หรือปรอท</li>
+                    </ul>
+                `
+            },
+            {
+                id: 1,
+                category: 'life',
+                tag: 'เรียน & การจัดการเวลา',
+                tagColor: 'bg-lavender-100 text-lavender-600',
+                emoji: '⏳',
+                title: 'เทคนิค Pomodoro แบ่งเวลาอ่านหนังสือให้มีเวลาเล่นเกม',
+                summary: 'อ่านหนังสือยังไงให้จำแม่น ไม่วอกแวก และยังเหลือเวลาไปดูซีรีส์หรือเล่นเกมกับเพื่อนแบบไม่รู้สึกผิด',
+                content: `
+                    <p class="mb-3">การนั่งอ่านหนังสือติดกัน 4 ชั่วโมงไม่ได้แปลว่าจะจำได้ทั้งหมด ลองใช้เทคนิค <strong>Pomodoro (มะเขือเทศ)</strong> ดูสิ:</p>
+                    <ul class="list-disc list-inside space-y-2 mb-3">
+                        <li><strong>โฟกัส 25 นาที:</strong> ปิดแจ้งเตือนมือถือ ตั้งเวลา 25 นาที แล้วตั้งใจอ่านหรือทำการบ้านตรงหน้าเพียงอย่างเดียว</li>
+                        <li><strong>พักเบรก 5 นาที:</strong> ลุกไปยืดเส้นยืดสาย ดื่มน้ำ เข้าห้องน้ำ หรือเช็กแชทสั้นๆ</li>
+                        <li><strong>ทำครบ 4 รอบ พักยาว 15-30 นาที:</strong> เมื่อทำครบตามเป้าหมายของวันแล้ว ก็สามารถไปเล่นเกมหรือดูหนังได้อย่างสบายใจ!</li>
+                    </ul>
+                `
+            },
+            {
+                id: 2,
+                category: 'sexed',
+                tag: 'เพศศึกษาปลอดภัย',
+                tagColor: 'bg-mint-100 text-mint-600',
+                emoji: '🛡️',
+                title: 'ความรักวัยรุ่น & Consent: รักให้เป็น ปลอดภัยทั้งคู่',
+                summary: 'ทำความเข้าใจเรื่องความยินยอม (Consent) การเคารพขอบเขตของกันและกัน และการป้องกันที่ถูกต้องตามหลักการแพทย์',
+                content: `
+                    <p class="mb-3">ความรักในวัยเรียนเป็นเรื่องสวยงาม หากตั้งอยู่บนพื้นฐานของการให้เกียรติและความปลอดภัย:</p>
+                    <ul class="list-disc list-inside space-y-2 mb-3">
+                        <li><strong>Consent (ความยินยอม) คือหัวใจสำคัญ:</strong> "ไม่" แปลว่า "ไม่" เสมอ การเงียบหรือไม่กล้าปฏิเสธไม่ใช่ความยินยอม และสามารถเปลี่ยนใจได้ทุกเมื่อ</li>
+                        <li><strong>ป้องกัน 2 ชั้นปลอดภัยที่สุด:</strong> หากมีเพศสัมพันธ์ การใช้ <strong>ถุงยางอนามัย</strong> ร่วมกับยาคุมกำเนิด ช่วยป้องกันทั้งการตั้งครรภ์ไม่พร้อมและโรคติดต่อทางเพศสัมพันธ์ (STIs)</li>
+                        <li><strong>ไม่ส่งภาพส่วนตัว (Sexting):</strong> หลีกเลี่ยงการถ่ายหรือส่งภาพลับส่วนตัวให้ใคร แม้จะเป็นแฟนกัน เพื่อป้องกันการถูกแบล็กเมล์ในอนาคต</li>
+                    </ul>
+                `
+            },
+            {
+                id: 3,
+                category: 'cyber',
+                tag: 'โลกออนไลน์',
+                tagColor: 'bg-skyneon-100 text-skyneon-600',
+                emoji: '🌐',
+                title: 'รับมืออย่างไรเมื่อเจอ Cyberbullying บนโลกโซเชียล?',
+                summary: 'วิธีตั้งรับเมื่อถูกคอมเมนต์แย่ๆ ถูกแขวน หรือถูกกลั่นแกล้งออนไลน์ พร้อมวิธีเก็บหลักฐานอย่างถูกวิธี',
+                content: `
+                    <p class="mb-3">เมื่อเจอการกลั่นแกล้งบนโลกออนไลน์ อย่าเพิ่งโทษตัวเอง ให้ทำตาม 4 ขั้นตอนนี้:</p>
+                    <ul class="list-disc list-inside space-y-2 mb-3">
+                        <li><strong>1. หยุดตอบโต้ (Don't Feed the Troll):</strong> การโต้เถียงด้วยอารมณ์มักทำให้เรื่องบานปลายและเข้าทางผู้กลั่นแกล้ง</li>
+                        <li><strong>2. แคปเจอร์เก็บหลักฐาน:</strong> บันทึกภาพหน้าจอ ข้อความ ลิงก์โปรไฟล์ และวันเวลาที่เกิดเหตุไว้ทั้งหมด</li>
+                        <li><strong>3. บล็อกและรีพอร์ต (Block & Report):</strong> ปิดกั้นการเข้าถึงและรายงานบัญชีที่ละเมิดกฎต่อแพลตฟอร์ม</li>
+                        <li><strong>4. ขอความช่วยเหลือ:</strong> เล่าให้ผู้ปกครอง ครูที่ปรึกษา หรือโทรปรึกษาสายด่วน 1323 / สายด่วนศูนย์ช่วยเหลือสังคม 1300</li>
+                    </ul>
+                `
+            }
+        ];
+
+        const FAQ_DATA = [
+            {
+                q: "นอนดึกช่วงสอบ แล้วค่อยมานอนชดเชยวันเสาร์-อาทิตย์ ได้ไหม?",
+                a: "การนอนชดเชยช่วยบรรเทาความเหนื่อยล้าได้บางส่วน แต่ไม่สามารถทดแทนคุณภาพการนอนที่เสียไปได้ทั้งหมด และอาจทำให้นาฬิกาชีวภาพรวน (Social Jetlag) ส่งผลให้วันจันทร์ตื่นยากกว่าเดิม แนะนำให้นอนและตื่นเวลาใกล้เคียงเดิมทุกวันจะดีที่สุดครับ"
+            },
+            {
+                q: "อยากลดน้ำหนักต้องอดอาหารมื้อเย็นจริงหรือเปล่า?",
+                a: "ไม่จริงเลย! วัยรุ่นเป็นวัยที่ร่างกายกำลังเจริญเติบโต การอดอาหารจะทำให้ระบบเผาผลาญพัง สมองเบลอ และเสี่ยงต่อการเกิดโรคกระเพาะหรือพฤติกรรมการกินที่ผิดปกติ (Eating Disorders) ควรทานให้ครบ 3 มื้อ โดยเน้นโปรตีน ผัก และลดของทอดของหวานแทน"
+            },
+            {
+                q: "รู้สึกเครียดแต่ไม่กล้าบอกพ่อแม่ กลัวโดนดุ ทำยังไงดี?",
+                a: "ลองเริ่มจากพูดคุยกับคนที่เธอสบายใจที่สุดก่อน เช่น เพื่อนสนิท ครูแนะแนว หรือโทรพูดคุยกับนักจิตวิทยาที่สายด่วนสุขภาพจิต 1323 (โทรฟรี 24 ชม. ไม่ต้องบอกชื่อจริงก็ได้) เพื่อช่วยเรียบเรียงความคิดและหาทางออกร่วมกันนะ"
+            }
+        ];
+
+        let selectedMoodTemp = null;
+
+        // --- 2. INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initDate();
+            renderWaterGlasses();
+            loadAllDashboardData();
+            renderMoodHistory();
+            calculateSleepTimes();
+            renderArticles('all');
+            renderFAQs();
+        });
+
+        function initDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const todayStr = new Date().toLocaleDateString('th-TH', options);
+            document.getElementById('current-date-badge').textContent = `📅 ${todayStr}`;
+        }
+
+        function getTodayKey() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        // --- 3. NAVIGATION & UI HELPERS ---
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+            });
+            // Show target tab
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+            // Update nav active states (both desktop & mobile)
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.classList.add('nav-active');
+                } else {
+                    btn.classList.remove('nav-active');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = type === 'success' 
+                ? 'bg-slate-800 text-white border-mint-400' 
+                : 'bg-rose-600 text-white border-rose-300';
+            
+            toast.className = `${colors} border-l-4 px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-medium flex items-center gap-2.5 transform transition-all duration-300 translate-x-full opacity-0`;
+            toast.innerHTML = `<i class="ph-fill ${type === 'success' ? 'ph-check-circle text-mint-400' : 'ph-warning-circle text-white'} text-lg"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function openModal(htmlContent) {
+            document.getElementById('modal-content').innerHTML = htmlContent;
+            const modal = document.getElementById('custom-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('custom-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function openHotlineModal() {
+            openModal(`
+                <div class="text-center space-y-4 pt-2">
+                    <div class="w-16 h-16 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center mx-auto text-3xl">
+                        <i class="ph-fill ph-phone-call"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">สายด่วนปรึกษาสุขภาพจิต & ช่วยเหลือวัยรุ่น</h3>
+                        <p class="text-xs text-slate-500 mt-1">เธอไม่ได้อยู่ตัวคนเดียว มีผู้เชี่ยวชาญพร้อมรับฟังอย่างเข้าใจและไม่ตัดสิน</p>
+                    </div>
+                    <div class="space-y-2.5 text-left">
+                        <a href="tel:1323" class="block p-4 rounded-2xl bg-rose-50 hover:bg-rose-100 border border-rose-200 transition">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-bold text-rose-700">สายด่วนสุขภาพจิต 1323</p>
+                                    <p class="text-xs text-slate-600">กรมสุขภาพจิต • ให้คำปรึกษาฟรี 24 ชั่วโมง</p>
+                                </div>
+                                <span class="px-3 py-1.5 rounded-xl bg-rose-500 text-white text-xs font-bold">โทรเลย</span>
+                            </div>
+                        </a>
+                        <a href="tel:021136789" class="block p-4 rounded-2xl bg-lavender-50 hover:bg-lavender-100 border border-lavender-200 transition">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-bold text-lavender-700">สมาคมสะมาริตันส์ (Samaritans)</p>
+                                    <p class="text-xs text-slate-600">โทร 02-113-6789 • รับฟังปัญหาและป้องกันการฆ่าตัวตาย</p>
+                                </div>
+                                <span class="px-3 py-1.5 rounded-xl bg-lavender-500 text-white text-xs font-bold">โทรเลย</span>
+                            </div>
+                        </a>
+                        <a href="tel:1663" class="block p-4 rounded-2xl bg-mint-50 hover:bg-mint-100 border border-mint-200 transition">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-bold text-mint-700">สายด่วนปรึกษาเอดส์และท้องไม่พร้อม 1663</p>
+                                    <p class="text-xs text-slate-600">ให้คำปรึกษาเรื่องเพศสัมพันธ์และการตั้งครรภ์อย่างปลอดภัย</p>
+                                </div>
+                                <span class="px-3 py-1.5 rounded-xl bg-mint-500 text-white text-xs font-bold">โทรเลย</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            `);
+        }
+
+        function newQuote() {
+            const qEl = document.getElementById('daily-quote');
+            let randomQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+            qEl.textContent = `"${randomQuote}"`;
+        }
+
+        // --- 4. MENTAL HEALTH: MOOD & STRESS ---
+        function selectMood(key, emoji, label) {
+            selectedMoodTemp = { key, emoji, label };
+            
+            // Highlight selected button
+            document.querySelectorAll('.mood-option').forEach(btn => {
+                btn.classList.remove('border-lavender-500', 'scale-105', 'shadow-md');
+            });
+            event.currentTarget.classList.add('border-lavender-500', 'scale-105', 'shadow-md');
+
+            // Show dynamic advice
+            const adviceBox = document.getElementById('mood-advice-box');
+            const advice = MOOD_ADVICE[key];
+            document.getElementById('mood-advice-title').textContent = advice.title;
+            document.getElementById('mood-advice-text').textContent = advice.text;
+            adviceBox.classList.remove('hidden');
+        }
+
+        function saveMoodEntry() {
+            if (!selectedMoodTemp) {
+                showToast('กรุณาเลือกอิโมจิอารมณ์ของเธอก่อนนะ!', 'error');
+                return;
+            }
+            const note = document.getElementById('mood-note-input').value.trim();
+            const entry = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+                dayKey: getTodayKey(),
+                ...selectedMoodTemp,
+                note: note || 'ไม่ได้เขียนบันทึกเพิ่มเติม'
+            };
+
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.MOODS) || '[]');
+            history.unshift(entry);
+            localStorage.setItem(STORAGE_KEYS.MOODS, JSON.stringify(history.slice(0, 30))); // Keep last 30
+
+            document.getElementById('mood-note-input').value = '';
+            renderMoodHistory();
+            loadAllDashboardData();
+            showToast('บันทึกอารมณ์ประจำวันเรียบร้อยแล้ว 💜');
+        }
+
+        function renderMoodHistory() {
+            const list = document.getElementById('mood-history-list');
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.MOODS) || '[]');
+
+            if (history.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">ยังไม่มีประวัติการบันทึก ลองเลือกอารมณ์ด้านบนดูสิ!</p>`;
+                return;
+            }
+
+            list.innerHTML = history.map(item => `
+                <div class="flex items-start gap-3 p-3 rounded-2xl bg-white/80 border border-slate-100">
+                    <span class="text-2xl bg-slate-50 w-10 h-10 rounded-xl flex items-center justify-center shrink-0">${item.emoji}</span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-bold text-xs text-slate-800">${item.label}</span>
+                            <span class="text-[11px] text-slate-400">${item.date}</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mt-0.5 break-words">${escapeHTML(item.note)}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearMoodHistory() {
+            localStorage.removeItem(STORAGE_KEYS.MOODS);
+            renderMoodHistory();
+            loadAllDashboardData();
+            showToast('ล้างประวัติอารมณ์แล้ว');
+        }
+
+        // Stress Form Submit
+        document.getElementById('stress-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let total = 0;
+            for (let i = 1; i <= 5; i++) {
+                const val = document.querySelector(`input[name="q${i}"]:checked`)?.value;
+                total += parseInt(val || 0, 10);
+            }
+
+            let level = '', badgeClass = '', boxClass = '', desc = '';
+            if (total <= 4) {
+                level = 'ความเครียดระดับต่ำ (ปกติ)';
+                badgeClass = 'bg-mint-100 text-mint-700';
+                boxClass = 'bg-mint-50/80 border-mint-200';
+                desc = 'เธอจัดการความรู้สึกได้ดีมาก! รักษาสมดุลการเรียนและการพักผ่อนแบบนี้ต่อไปนะ';
+            } else if (total <= 9) {
+                level = 'ความเครียดระดับปานกลาง';
+                badgeClass = 'bg-amber-100 text-amber-700';
+                boxClass = 'bg-amber-50/80 border-amber-200';
+                desc = 'เริ่มมีความเครียดสะสมบ้างแล้ว ลองหาเวลาพักผ่อน ทำกิจกรรมที่ชอบ ออกกำลังกายเบาๆ หรือพูดคุยระบายกับเพื่อนสนิทดูนะ';
+            } else {
+                level = 'ความเครียดระดับสูง';
+                badgeClass = 'bg-rose-100 text-rose-700';
+                boxClass = 'bg-rose-50/80 border-rose-200';
+                desc = 'ตอนนี้เธออาจกำลังแบกรับความกดดันไว้มากเกินไป อย่าเก็บไว้คนเดียวนะ ลองปรึกษาผู้ปกครอง ครูแนะแนว หรือโทรสายด่วนสุขภาพจิต 1323 ได้เลย';
+            }
+
+            const resBox = document.getElementById('stress-result-box');
+            resBox.className = `rounded-2xl p-4 border animate-fade-in space-y-2 ${boxClass}`;
+            document.getElementById('stress-level-badge').className = `text-xs font-bold px-3 py-1 rounded-full ${badgeClass}`;
+            document.getElementById('stress-level-badge').textContent = level;
+            document.getElementById('stress-score-text').textContent = `คะแนน ${total} / 15`;
+            document.getElementById('stress-advice-desc').textContent = desc;
+            resBox.classList.remove('hidden');
+
+            localStorage.setItem(STORAGE_KEYS.STRESS, JSON.stringify({ level, total }));
+            loadAllDashboardData();
+            showToast('ประเมินความเครียดเรียบร้อย');
+        });
+
+        // --- 5. PHYSICAL HEALTH: WATER & BMI ---
+        function getWaterCount() {
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEYS.WATER) || '{}');
+            if (data.date !== getTodayKey()) {
+                return 0;
+            }
+            return data.count || 0;
+        }
+
+        function setWaterCount(count) {
+            const clamped = Math.max(0, Math.min(15, count));
+            localStorage.setItem(STORAGE_KEYS.WATER, JSON.stringify({
+                date: getTodayKey(),
+                count: clamped
+            }));
+            renderWaterGlasses();
+            loadAllDashboardData();
+        }
+
+        function updateWater(delta) {
+            const current = getWaterCount();
+            setWaterCount(current + delta);
+            if (delta > 0) {
+                showToast('ยอดเยี่ยม! ดื่มน้ำเพิ่มอีก 1 แก้ว 💧');
+            }
+        }
+
+        function resetWater() {
+            setWaterCount(0);
+            showToast('รีเซ็ตจำนวนแก้วน้ำวันนี้แล้ว');
+        }
+
+        function renderWaterGlasses() {
+            const count = getWaterCount();
+            document.getElementById('water-big-count').textContent = count;
+            document.getElementById('water-ml-count').textContent = count * 250;
+
+            const grid = document.getElementById('water-glasses-grid');
+            let html = '';
+            for (let i = 1; i <= 8; i++) {
+                const filled = i <= count;
+                html += `
+                    <button onclick="setWaterCount(${i})" class="w-10 h-12 rounded-xl flex flex-col items-center justify-center transition transform hover:scale-110 ${filled ? 'bg-skyneon-500 text-white shadow-md' : 'bg-white text-slate-300 border border-slate-200'}">
+                        <i class="ph-fill ph-drop text-lg"></i>
+                        <span class="text-[10px] font-bold">${i}</span>
+                    </button>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+
+        function calculateBMI() {
+            const w = parseFloat(document.getElementById('bmi-weight').value);
+            const h = parseFloat(document.getElementById('bmi-height').value);
+
+            if (!w || !h || w < 20 || h < 100) {
+                showToast('กรุณากรอกน้ำหนักและส่วนสูงให้ถูกต้องนะ', 'error');
+                return;
+            }
+
+            const heightM = h / 100;
+            const bmi = (w / (heightM * heightM)).toFixed(1);
+            let category = '', advice = '';
+
+            if (bmi < 18.5) {
+                category = 'น้ำหนักน้อยกว่าเกณฑ์';
+                advice = 'วัยรุ่นกำลังโตและใช้พลังงานเยอะ ลองเพิ่มมื้ออาหารที่มีประโยชน์ เน้นโปรตีน (ไข่ นม เนื้อสัตว์ ถั่ว) และคาร์โบไฮเดรตเชิงซ้อน ไม่ต้องรีบร้อนนะ ค่อยๆ เพิ่มสารอาหารให้ครบถ้วน';
+            } else if (bmi <= 22.9) {
+                category = 'สมส่วน สุขภาพดี ✨';
+                advice = 'หุ่นกำลังดีสมวัยเลย! รักษาสมดุลการกินอาหารให้ครบ 5 หมู่ ดื่มน้ำให้เพียงพอ และออกกำลังกายสม่ำเสมอเพื่อเสริมสร้างกล้ามเนื้อและความสูงต่อไปนะ';
+            } else if (bmi <= 24.9) {
+                category = 'เริ่มท้วมเล็กน้อย';
+                advice = 'อยู่ในช่วงกำลังเติบโต ยังไม่จำเป็นต้องอดอาหารนะ แค่ลองลดเครื่องดื่มหวานจัด ขนมกรุบกรอบ และเพิ่มการขยับร่างกายหรือเล่นกีฬาที่ชอบวันละ 30 นาทีก็เยี่ยมแล้ว';
+            } else {
+                category = 'น้ำหนักเกินเกณฑ์';
+                advice = 'เน้นการปรับพฤติกรรมอย่างค่อยเป็นค่อยไป เช่น ลดน้ำหวาน ของทอด เพิ่มผักและโปรตีนในมื้ออาหาร และออกกำลังกายแบบคาร์ดิโอเบาๆ อย่าอดอาหารหรือใช้ยาลดน้ำหนักเด็ดขาดนะ';
+            }
+
+            document.getElementById('bmi-score').textContent = bmi;
+            document.getElementById('bmi-category').textContent = category;
+            document.getElementById('bmi-advice').textContent = advice;
+            document.getElementById('bmi-result-box').classList.remove('hidden');
+
+            localStorage.setItem(STORAGE_KEYS.BMI, JSON.stringify({ bmi, category }));
+            loadAllDashboardData();
+            showToast('คำนวณค่า BMI เรียบร้อยแล้ว');
+        }
+
+        // --- 6. SLEEP CALCULATOR ---
+        function calculateSleepTimes() {
+            const wakeInput = document.getElementById('wake-time-input').value;
+            if (!wakeInput) return;
+
+            const [hours, minutes] = wakeInput.split(':').map(Number);
+            const wakeDate = new Date();
+            wakeDate.setHours(hours, minutes, 0, 0);
+
+            // 15 mins to fall asleep + cycles of 90 mins (6 cycles = 9h, 5 cycles = 7.5h, 4 cycles = 6h)
+            const cycles = [
+                { count: 6, label: 'แนะนำที่สุด (9 ชม.)', badge: 'bg-mint-500 text-white' },
+                { count: 5, label: 'กำลังดี (7.5 ชม.)', badge: 'bg-skyneon-500 text-white' },
+                { count: 4, label: 'ขั้นต่ำช่วงสอบ (6 ชม.)', badge: 'bg-amber-500 text-white' }
+            ];
+
+            const container = document.getElementById('sleep-results-box');
+            container.innerHTML = `<p class="text-xs text-indigo-200 mb-1">ควรเข้านอน (ปิดไฟ/วางมือถือ) เวลา:</p>` + cycles.map(c => {
+                const totalMins = (c.count * 90) + 15;
+                const sleepDate = new Date(wakeDate.getTime() - totalMins * 60000);
+                const sleepStr = sleepDate.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+                return `
+                    <div class="flex items-center justify-between p-3 rounded-2xl bg-white/10 border border-white/10">
+                        <div class="flex items-center gap-2.5">
+                            <i class="ph-fill ph-alarm text-amber-300 text-lg"></i>
+                            <span class="text-lg font-bold tracking-wide">${sleepStr} น.</span>
+                        </div>
+                        <span class="text-[11px] font-semibold px-2.5 py-1 rounded-xl ${c.badge}">${c.label}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- 7. ARTICLES & FAQ ---
+        function renderArticles(filter) {
+            const grid = document.getElementById('articles-grid');
+            const filtered = filter === 'all' ? ARTICLES_DATA : ARTICLES_DATA.filter(a => a.category === filter);
+
+            grid.innerHTML = filtered.map(article => `
+                <div onclick="openArticle(${article.id})" class="glass-card rounded-3xl p-6 hover:scale-[1.01] transition cursor-pointer flex flex-col justify-between space-y-4">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold px-3 py-1 rounded-xl ${article.tagColor}">${article.tag}</span>
+                            <span class="text-2xl">${article.emoji}</span>
+                        </div>
+                        <h4 class="font-bold text-lg text-slate-800 leading-snug">${article.title}</h4>
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">${article.summary}</p>
+                    </div>
+                    <div class="text-xs font-semibold text-lavender-600 flex items-center gap-1 pt-2">
+                        <span>อ่านเพิ่มเติม</span>
+                        <i class="ph-bold ph-arrow-right"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterArticles(category) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-lavender-500', 'text-white');
+                btn.classList.add('bg-white', 'text-slate-600');
+            });
+            event.currentTarget.classList.remove('bg-white', 'text-slate-600');
+            event.currentTarget.classList.add('bg-lavender-500', 'text-white');
+            renderArticles(category);
+        }
+
+        function openArticle(id) {
+            const article = ARTICLES_DATA.find(a => a.id === id);
+            if (!article) return;
+
+            openModal(`
+                <div class="space-y-4 pt-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold px-3 py-1 rounded-xl ${article.tagColor}">${article.tag}</span>
+                        <span class="text-xl">${article.emoji}</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 leading-snug">${article.title}</h3>
+                    <div class="text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-4">
+                        ${article.content}
+                    </div>
+                </div>
+            `);
+        }
+
+        function renderFAQs() {
+            const container = document.getElementById('faq-container');
+            container.innerHTML = FAQ_DATA.map((item, idx) => `
+                <div class="rounded-2xl bg-white/80 border border-slate-100 overflow-hidden">
+                    <button onclick="toggleFAQ(${idx})" class="w-full p-4 text-left flex items-center justify-between gap-3 font-semibold text-xs sm:text-sm text-slate-800 hover:bg-slate-50/80 transition">
+                        <span>${item.q}</span>
+                        <i id="faq-icon-${idx}" class="ph-bold ph-caret-down text-lavender-500 transition-transform"></i>
+                    </button>
+                    <div id="faq-ans-${idx}" class="hidden px-4 pb-4 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-50 pt-2">
+                        ${item.a}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleFAQ(idx) {
+            const ans = document.getElementById(`faq-ans-${idx}`);
+            const icon = document.getElementById(`faq-icon-${idx}`);
+            ans.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+
+        // --- 8. DASHBOARD SYNC ---
+        function loadAllDashboardData() {
+            // 1. Mood
+            const moods = JSON.parse(localStorage.getItem(STORAGE_KEYS.MOODS) || '[]');
+            const todayMood = moods.find(m => m.dayKey === getTodayKey()) || moods[0];
+            if (todayMood) {
+                document.getElementById('dash-mood-emoji').textContent = todayMood.emoji;
+                document.getElementById('dash-hero-emoji').textContent = todayMood.emoji;
+                document.getElementById('dash-mood-label').textContent = todayMood.label;
+                document.getElementById('dash-mood-note').textContent = todayMood.note;
+            }
+
+            // 2. Water
+            const waterCount = getWaterCount();
+            document.getElementById('dash-water-count').textContent = waterCount;
+            const pct = Math.min(100, (waterCount / 8) * 100);
+            document.getElementById('dash-water-bar').style.width = `${pct}%`;
+
+            // 3. BMI
+            const bmiData = JSON.parse(localStorage.getItem(STORAGE_KEYS.BMI) || 'null');
+            if (bmiData) {
+                document.getElementById('dash-bmi-val').textContent = `BMI ${bmiData.bmi}`;
+                document.getElementById('dash-bmi-status').textContent = bmiData.category;
+            }
+
+            // 4. Stress
+            const stressData = JSON.parse(localStorage.getItem(STORAGE_KEYS.STRESS) || 'null');
+            if (stressData) {
+                document.getElementById('dash-stress-status').textContent = stressData.level;
+            }
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag]));
+        }
+    </script>
+</body>
+</html>
